@@ -8,6 +8,12 @@
 <ul>
     <%= shortURL %>
 </ul>
+<div>
+  <form method="POST" action=<%= "/urls/" + shortURL + "/update"%> >
+    <input id="longURL" type="text" name="longURL" placeholder="http://" style="width: 300px">
+    <button type="submit">Update URL</button>
+  </form>
+</div>
 <a href=''> Create new TinyURL </a>
 </body>
 </html>
