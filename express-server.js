@@ -25,19 +25,31 @@ app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
-app.get("/urls/:id", (req, res) => {
-  let templateVars = { shortURL: req.params.id, original: urlDatabase[req.params.id] };
-  console.log(templateVars);
-  res.render("urls_show", templateVars);
-});
-
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
 
+app.get("/urls/:id", (req, res) => {
+  if (!urlDatabase[req.params.id]) { //Returns 404 error if given shortURL does not exist
+    res.end("Page does not exist.");
+    res.status(404);
+  } else {
+    let templateVars = { shortURL: req.params.id, original: urlDatabase[req.params.id] };
+    res.render("urls_show", templateVars);
+  }
+});
+
 app.post("/urls", (req, res) => {
-  console.log(req.body);  // debug statement to see POST parameters
-  res.send("Ok");         // Respond with 'Ok' (we will replace this)
+  console.log(req.body);
+  var shortURL = generateRandomString();
+  urlDatabase[shortURL] = req.body.longURL;  // debug statement to see POST parameters
+  res.redirect(`/urls/${shortURL}`);
+  res.status(302);
+});
+
+app.get("/u/:shortURL", (req, res) => {
+  let longURL = urlDatabase[req.params.shortURL];
+  res.redirect(longURL);
 });
 
 app.get("/hello", (req, res) => {
