@@ -7,9 +7,11 @@
     <h2>Original and shortened URLs</h2>
 <ul>
     <% for (var url in urls) { %>
-        <li><%= url %> - <%= urls[url] %>
+      <% if (urls[url].userid === user_id) { %>
+        <li><%= url %> - <%= urls[url].longURL %>
         <form method="POST" action=<%= "/urls/" + url + "/delete"%> > <button type="submit">Delete URL</button></form>
         </li>
+      <% } %>
     <% }; %>
 </ul>
 <a href='/urls/new'> Create new TinyURL </a>
