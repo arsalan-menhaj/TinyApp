@@ -135,7 +135,7 @@ app.delete("/urls/:id/delete", (req, res) => {
   }
 });
 
-app.post("/urls/:id/update", (req, res) => {
+app.put("/urls/:id/update", (req, res) => {
   let urlUser = urlDatabase[req.params.id].userid;
   if (!req.session["user_id"] || req.session["user_id"] !== urlUser) {
     res.status(403);
