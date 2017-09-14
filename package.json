@@ -1,0 +1,30 @@
+{
+  "name": "express-task",
+  "version": "1.0.0",
+  "description": "TinyApp is a full stack web application built with Node and Express that allows users to shorten long URLs",
+  "main": "express-server.js",
+  "dependencies": {
+    "bcrypt": "^1.0.3",
+    "body-parser": "^1.18.1",
+    "cookie": "^0.3.1",
+    "cookie-parser": "^1.4.3",
+    "cookie-session": "^1.3.1",
+    "ejs": "^2.5.7",
+    "express": "^4.15.4",
+    "parser": "^0.1.4"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arsalan-menhaj/TinyApp.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/arsalan-menhaj/TinyApp/issues"
+  },
+  "homepage": "https://github.com/arsalan-menhaj/TinyApp#readme"
+}

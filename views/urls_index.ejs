@@ -4,7 +4,9 @@
   <%- include partials/_header.ejs %>
 </head>
 <body>
+  <% if (user_id) { %>
     <h2>Original and shortened URLs</h2>
+  <% } %>
 <ul>
     <% for (var url in urls) { %>
       <% if (urls[url].userid === user_id) { %>

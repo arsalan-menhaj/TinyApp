@@ -207,7 +207,7 @@ app.post("/register", (req, res) => {
     users[newUserID]["id"] = newUserID;
     users[newUserID]["email"] = req.body.email;
     users[newUserID]["hashedPassword"] = hashedPassword;
-    req.session.user_id = newUserID;
+    req.session.user_id = newUserID; //req.cookie()
     res.redirect('/urls');
   }
 });
