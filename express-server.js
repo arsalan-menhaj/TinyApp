@@ -1,15 +1,19 @@
-var express = require("express");
-var app = express();
-var PORT = process.env.PORT || 8080; // default port 8080
+const express = require("express");
+const app = express();
+const PORT = process.env.PORT || 8080; // default port 8080
 
 const cParser = require("cookie-parser");
 const cSession = require("cookie-session");
+const methodOverride = require('method-override')
+
+
 
 app.use(cParser());
 app.use(cSession({
   name: 'session',
   keys: ['key1', 'key2']
 }))
+app.use(methodOverride('_method'));
 
 
 const bodyParser = require("body-parser");
@@ -120,7 +124,7 @@ app.get("/urls/:id", (req, res) => {
   }
 });
 
-app.post("/urls/:id/delete", (req, res) => {
+app.delete("/urls/:id/delete", (req, res) => {
   let urlUser = urlDatabase[req.params.id].userid;
   if (!req.session["user_id"] || req.session["user_id"] !== urlUser) {
     res.status(403);
@@ -217,10 +221,10 @@ app.listen(PORT, () => {
 });
 
 function generateRandomString(length) {
-  var text = "";
-  var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let text = "";
+  let possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
-  for (var i = 0; i < length ; i++) {
+  for (let i = 0; i < length ; i++) {
     text += possible.charAt(Math.floor(Math.random() * possible.length));
   }
   return text;

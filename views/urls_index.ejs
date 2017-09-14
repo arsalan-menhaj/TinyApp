@@ -11,7 +11,7 @@
     <% for (var url in urls) { %>
       <% if (urls[url].userid === user_id) { %>
         <li><%= url %> - <%= urls[url].longURL %>
-        <form method="POST" action=<%= "/urls/" + url + "/delete"%> > <button type="submit">Delete URL</button></form>
+        <form method="POST" action=<%= "/urls/" + url + "/delete?_method=DELETE" %> > <button type="submit">Delete URL</button></form>
         </li>
       <% } %>
     <% }; %>

@@ -9,6 +9,9 @@
     <%= shortURL %>
 </ul>
 <div>
+  <form method="POST" action=<%= "/urls/" + shortURL + "/delete?_method=DELETE" %> > <button type="submit">Delete URL</button></form>
+</div>
+<div>
   <form method="POST" action=<%= "/urls/" + shortURL + "/update"%> >
     <input id="longURL" type="text" name="longURL" placeholder="http://" style="width: 300px">
     <button type="submit">Update URL</button>
