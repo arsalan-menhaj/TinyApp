@@ -23,14 +23,21 @@ app.set("view engine", "ejs");
 
 const bcrypt = require('bcrypt');
 
+
 const urlDatabase = {
   "b2xVn2": {
     "userid": "userRandomID",
     "longURL": "http://www.lighthouselabs.ca",
+    "timesVisited": 0,
+    "visitors&Times": {},
+    "numberOfUniques": 0
   },
   "9sm5xK": {
     "userid": "user2RandomID",
-    "longURL": "http://www.google.com"
+    "longURL": "http://www.google.com",
+    "timesVisited": 0,
+    "visitors&Times": {},
+    "numberOfUniques": 0
   }
 };
 
@@ -77,6 +84,37 @@ function locateUser (givenEmail) {
   return undefined;
 }
 
+// Helper function to update analytics information upon every visit to a shortURL
+// Will be invoked every time a user navigates to a site using a shortURL
+function updateAnalytics(shortURL,visitorID) {
+  let timestamp = new Date().toString();
+  // window.performance && window.performance.now && window.performance.timing && window.performance.timing.navigationStart ? window.performance.now() + window.performance.timing.navigationStart : Date.now();
+
+  urlDatabase[shortURL]["timesVisited"]++;
+
+  // Increments the number of unique visitors upon new visitor
+  // and creates new array to contain timestamps for said visitor
+  if (!urlDatabase[shortURL]["visitors&Times"][visitorID]) {
+    urlDatabase[shortURL]["numberOfUniques"]++;
+    urlDatabase[shortURL]["visitors&Times"][visitorID] = [];
+  }
+
+  urlDatabase[shortURL]["visitors&Times"][visitorID].push(timestamp);
+  console.log(urlDatabase);
+}
+
+// Helper function to display analytics information.
+// Will be invoked on URL edit page
+function displayAnalytics(shortURL) {
+  analyticsInfo = {
+    "timesVisited": urlDatabase[shortURL]["timesVisited"],
+    "numberOfUniques": urlDatabase[shortURL]["numberOfUniques"],
+    "visitors&Times": urlDatabase[shortURL]["visitors&Times"]
+  };
+  return analyticsInfo;
+}
+
+
 app.get("/", (req, res) => {
   res.end("Hello!");
 });
@@ -114,14 +152,18 @@ app.get("/urls/:id", (req, res) => {
   } else if (!req.session["user_id"] || req.session["user_id"] !== urlUser) {
     res.status(403);
     res.end("403: You do not have permission to access this page.");
-  } else {
-    let templateVars = {
-      shortURL: req.params.id,
-      original: urlDatabase[req.params.id].longURL,
-      user_id: req.session["user_id"]
-    };
-    res.render("urls_show", templateVars);
   }
+
+  let templateVars = {
+    "shortURL": req.params.id,
+    "original": urlDatabase[req.params.id].longURL,
+    "user_id": req.session["user_id"],
+    "analytics": displayAnalytics(req.params.id)
+  };
+
+  console.log(JSON.stringify(templateVars.analytics["visitors&Times"]));
+  res.render("urls_show", templateVars);
+
 });
 
 app.delete("/urls/:id/delete", (req, res) => {
@@ -150,16 +192,25 @@ app.put("/urls/:id/update", (req, res) => {
 app.post("/urls", (req, res) => {
   var shortURL = generateRandomString(7);
   urlDatabase[shortURL] = {};
-  urlDatabase[shortURL].userid = req.session["user_id"];
-  urlDatabase[shortURL].longURL = req.body.longURL; // debug statement to see POST parameters
+  urlDatabase[shortURL]["userid"] = req.session["user_id"];
+  urlDatabase[shortURL]["longURL"] = req.body.longURL;
+  urlDatabase[shortURL]["timesVisited"] = 0;
+  urlDatabase[shortURL]["visitors&Times"] = {};
+  urlDatabase[shortURL]["numberOfUniques"] =  0;
   res.redirect(`/urls/${shortURL}`);
   res.status(302);
 });
 
+
+// When shortURL is included in URL, redirects user to corresponding longURL
+// and updates analytics information
 app.get("/u/:shortURL", (req, res) => {
   let destination = urlDatabase[req.params.shortURL].longURL;
   res.redirect(destination);
   res.status(302);
+  updateAnalytics(req.params.shortURL, req.session["user_id"] ? req.session["user_id"] : "anonymous");
+  console.log(req.params.shortURL);
+  console.log(req.session["user_id"] ? req.session["user_id"] : "anonymous");
 });
 
 app.get("/hello", (req, res) => {
@@ -211,7 +262,7 @@ app.post("/register", (req, res) => {
     users[newUserID]["id"] = newUserID;
     users[newUserID]["email"] = req.body.email;
     users[newUserID]["hashedPassword"] = hashedPassword;
-    req.session.user_id = newUserID; //req.cookie()
+    req.session.user_id = newUserID;
     res.redirect('/urls');
   }
 });

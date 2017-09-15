@@ -16,6 +16,10 @@
   </form>
 </div>
 
+<pre> Number of times visited: <%= analytics["timesVisited"] %> </pre>
+<pre> Number of unique visitors: <%= analytics["numberOfUniques"] %> </pre>
+<pre> Visitor log: <%= JSON.stringify(analytics["visitors&Times"]) %> </pre>
+
 <div>
   <form method="POST" action=<%= "/urls/" + shortURL + "/delete?_method=DELETE" %> > <button type="submit">Delete URL</button></form>
 </div>
