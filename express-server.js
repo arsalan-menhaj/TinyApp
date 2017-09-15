@@ -88,8 +88,6 @@ function locateUser (givenEmail) {
 // Will be invoked every time a user navigates to a site using a shortURL
 function updateAnalytics(shortURL,visitorID) {
   let timestamp = new Date().toString();
-  // window.performance && window.performance.now && window.performance.timing && window.performance.timing.navigationStart ? window.performance.now() + window.performance.timing.navigationStart : Date.now();
-
   urlDatabase[shortURL]["timesVisited"]++;
 
   // Increments the number of unique visitors upon new visitor
@@ -115,10 +113,12 @@ function displayAnalytics(shortURL) {
 }
 
 
+
 app.get("/", (req, res) => {
   res.end("Hello!");
 });
 
+// Route for main page
 app.get("/urls", (req, res) => {
   let templateVars = {
     urls: urlDatabase,
@@ -131,6 +131,8 @@ app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
+
+// Route leading to page where user can create a new shortURL
 app.get("/urls/new", (req, res) => {
   if (!req.session["user_id"]) {
     res.status(403);
@@ -143,16 +145,20 @@ app.get("/urls/new", (req, res) => {
   }
 });
 
+// Route leading to page displaying information about a particular shortURL
 app.get("/urls/:id", (req, res) => {
   let urlUser = urlDatabase[req.params.id].userid;
 
-  if (!urlDatabase[req.params.id]) { //Returns 404 error if given shortURL does not exist
+  if (!urlDatabase[req.params.id]) {
+    // Returns 404 error if given shortURL does not exist
     res.status(404);
     res.end("404: Page not found.");
   } else if (!req.session["user_id"] || req.session["user_id"] !== urlUser) {
+    // Return 403 error if the user is not logged in as the user that the shortURL belongs to
     res.status(403);
     res.end("403: You do not have permission to access this page.");
   }
+
 
   let templateVars = {
     "shortURL": req.params.id,
@@ -166,6 +172,8 @@ app.get("/urls/:id", (req, res) => {
 
 });
 
+
+// Route for deleting a particular shortURL. Redirects user to main page
 app.delete("/urls/:id/delete", (req, res) => {
   let urlUser = urlDatabase[req.params.id].userid;
   if (!req.session["user_id"] || req.session["user_id"] !== urlUser) {
@@ -177,6 +185,7 @@ app.delete("/urls/:id/delete", (req, res) => {
   }
 });
 
+// Route for changing the longURL associated with a shortURL. Redirects user to main page
 app.put("/urls/:id/update", (req, res) => {
   let urlUser = urlDatabase[req.params.id].userid;
   if (!req.session["user_id"] || req.session["user_id"] !== urlUser) {
@@ -189,8 +198,13 @@ app.put("/urls/:id/update", (req, res) => {
   }
 });
 
+// Route for generating a new shortURL. Redirects to the newly created shortURL page
 app.post("/urls", (req, res) => {
-  var shortURL = generateRandomString(7);
+
+  // Randomly generated string acts as new shortURL
+  let shortURL = generateRandomString(7);
+
+  // Creates entry in urlDatabase for new shortURL
   urlDatabase[shortURL] = {};
   urlDatabase[shortURL]["userid"] = req.session["user_id"];
   urlDatabase[shortURL]["longURL"] = req.body.longURL;
@@ -217,6 +231,7 @@ app.get("/hello", (req, res) => {
   res.end("<html><body>Hello <b>World</b></body></html>\n");
 });
 
+// Login page route
 app.get("/login", (req, res) => {
   let templateVars = {
     user_id: users[req.session["user_id"]]
@@ -224,6 +239,7 @@ app.get("/login", (req, res) => {
   res.render("login",templateVars);
 });
 
+// Login authentication route
 app.post("/login", (req, res) => {
   let givenEmail = req.body.email;
   let givenUser = locateUser(givenEmail);
@@ -239,6 +255,7 @@ app.post("/login", (req, res) => {
 
 });
 
+// Logout route
 app.post("/logout", (req, res) => {
   res.clearCookie("session");
   res.clearCookie("session.sig");
@@ -246,19 +263,24 @@ app.post("/logout", (req, res) => {
   res.status(302);
 });
 
+// Registration page route
 app.get("/register", (req, res) => {
   res.render("register");
 })
 
+// Registration information submission route
 app.post("/register", (req, res) => {
   let newUserID = generateRandomString(12);
   users[newUserID] = {};
+
+  // Hashes user password
   const hashedPassword = bcrypt.hashSync(req.body.password, 10);
 
   if ( !req.body.email || !hashedPassword || checkUserEmail(req.body.email) ) {
     res.status(400);
     res.end("400: Bad Request \n Please enter a valid email/password that is not already registered");
   } else {
+    // Generates new user entry in users database
     users[newUserID]["id"] = newUserID;
     users[newUserID]["email"] = req.body.email;
     users[newUserID]["hashedPassword"] = hashedPassword;
@@ -267,9 +289,11 @@ app.post("/register", (req, res) => {
   }
 });
 
+// Message to indicate successful server startup
 app.listen(PORT, () => {
   console.log(`TinyApp listening on port ${PORT}!`);
 });
+
 
 function generateRandomString(length) {
   let text = "";
